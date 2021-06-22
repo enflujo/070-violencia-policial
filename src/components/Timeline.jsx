@@ -370,6 +370,15 @@ class Timeline extends Component {
 }
 
 function mapStateToProps(state) {
+  // Si del timeline se selecciona más de un evento, se borra el hash #. 
+  //Si se selecciona un (1) evento, se agrega el hash #
+  if (state.app.selected.length > 1) {
+    window.history.replaceState(null, "New Page Title", " ")
+  } else if (state.app.selected.length == 1) {
+    let id = `/#${state.app.selected[0]["id"]}`
+    window.history.replaceState(null, "New Page Title", id)
+  }
+
   return {
     dimensions: selectors.selectDimensions(state),
     domain: {

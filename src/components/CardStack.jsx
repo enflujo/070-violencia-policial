@@ -5,6 +5,14 @@ import * as selectors from '../selectors';
 import Card from './Card.jsx';
 import copy from '../common/data/copy.json';
 
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Link
+} from "react-router-dom";
+
+
 class CardStack extends React.Component {
   constructor(props) {
     super(props);
@@ -48,21 +56,23 @@ class CardStack extends React.Component {
 
   renderSelectedCards() {
     const { selected } = this.props;
-
     if (selected.length > 0) {
       return this.renderCards(selected);
     }
     return null;
   }
-
+  // Al cerrar el card stack se borra el hash #
   renderCardStackHeader() {
     const headerLang = copy[this.props.language].cardstack.header;
 
     return (
       <div id="card-stack-header" className="card-stack-header" onClick={() => this.props.onToggleCardstack()}>
-        <button className="side-menu-burg is-active">
-          <span />
-        </button>
+        <Router>
+          <Link to="/" replace ><button className="side-menu-burg is-active">  <span />
+          </button>
+          </Link>
+        </Router>
+
         <p className="header-copy top">{`${this.props.selected.length} ${headerLang}`}</p>
       </div>
     );
@@ -88,6 +98,7 @@ class CardStack extends React.Component {
         >
           {this.renderCardStackHeader()}
           {this.renderCardStackContent()}
+
         </div>
       );
     }

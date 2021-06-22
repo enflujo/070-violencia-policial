@@ -4,6 +4,15 @@ import { connect } from 'react-redux';
 import * as selectors from '../selectors';
 import mapboxgl from 'mapbox-gl';
 
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Link
+} from "react-router-dom";
+import { createBrowserHistory } from "history";
+
+
 class Map extends Component {
   constructor() {
     super();
@@ -102,17 +111,18 @@ class Map extends Component {
 
     if (this.state.puntosCargados && this.props.app && this.props.app.map) {
       if (validateEventChange(this.props.app.selected, prevProps.app.selected)) {
+
         // Fly to first  of events selected
         const eventPoint = this.props.app.selected.length > 0 ? this.props.app.selected[0] : null;
-        
+
         this.setState({
           eventoId: eventPoint.id
-         });
+        });
         if (eventPoint !== null && eventPoint.latitude && eventPoint.longitude) {
           this.map.flyTo({
             center: [eventPoint.longitude, eventPoint.latitude],
             zoom: 18,
-          });  
+          });
         }
       }
     }
@@ -189,7 +199,12 @@ class Map extends Component {
       if (features.length >= 1) {
         const { idx } = features[0].properties;
         this.props.methods.onSelect(this.props.domain.events[idx]);
+
+        // Al hacer click en un evento del mapa, se actualiza la url agregando #id
+        const id = `/#${idx}`
+        window.history.replaceState(null, "New Page Title", id)
       }
+
     });
 
     this.map.on('mouseenter', 'unclustered-point', () => {
@@ -221,6 +236,8 @@ class Map extends Component {
           const el = createDonutChart(props);
           el.style.cursor = 'zoom-in';
           el.onclick = () => {
+            // Al hacer click en un cluster se borra el hash # del evento anterior
+            window.history.replaceState(null, "New Page Title", " ")
             this.map.getSource('puntosEventos').getClusterLeaves(id, props.point_count, 0, (err, aFeatures) => {
               if (err) return;
               const eventosEnCluster = aFeatures.map(({ properties }) => {
@@ -256,11 +273,11 @@ class Map extends Component {
 
     // after the GeoJSON data is loaded, update markers on the screen on every frame
     this.map.on('render', () => {
-     
+
       //Obtener el hash (#) de la url y pasarlo como id
-     const validateHash = () => {
+      const validateHash = () => {
         let pathHash = window.location.hash
-        let eventoId= parseInt(pathHash)
+        let eventoId = parseInt(pathHash)
         if (pathHash == "") {
           return ""
         } else {
@@ -273,7 +290,7 @@ class Map extends Component {
       if (hashId != "" && hashId < this.props.domain.events.length) {
         this.setState({
           eventoId: hashId
-         });
+        });
         this.props.methods.onSelect(this.props.domain.events[hashId]);
       }
 
@@ -350,17 +367,12 @@ class Map extends Component {
   render() {
     const classes = 'map-wrapper';
 
-    // Antonia Evento Id - cargar
-    
-    
     return (
       <div className={classes} onKeyDown={this.props.onKeyDown} tabIndex="0">
         <div id={this.props.ui.dom.map} />
       </div>
     );
-    
   }
-
 }
 
 function mapStateToProps(state) {

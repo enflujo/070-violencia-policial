@@ -20,6 +20,7 @@ class Card extends React.Component {
     this.setState({
       isOpen: !this.state.isOpen,
     });
+
   }
 
   makeTimelabel(datetime) {
@@ -27,6 +28,11 @@ class Card extends React.Component {
   }
 
   handleCardSelect(e) {
+    // Al seleccionar una carta, se actualiza el hash de la url con el id del evento 
+    // TODO No funciona con la primera. ¿Por qué?
+    const id = `/#${this.props.event["id"]}`
+    window.history.replaceState(null, "New Page Title", id)
+
     if (!e.target.className.includes('arrow-down')) {
       const selectedEventFormat = this.props.idx > 0 ? [this.props.event] : this.props.event;
       this.props.onSelect(selectedEventFormat, this.props.idx);

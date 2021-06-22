@@ -288,7 +288,8 @@
 
 .fuente {
   word-break: break-all;
-  padding: 0.4em;
+  font-size: small;
+  padding: 0.3em;
   border: 1px dotted;
   display: inline-block;
   margin: 0.2em !important;
@@ -300,9 +301,13 @@
 
 .enlace {
   color: rgba(0, 0, 0);
+  font-size: small;
   display: inline-block;
-  padding: 0.4em;
-  margin-left: 290px;
+  margin-left: 0.3em;
+  padding: 0.3em;
+ 
+ 
+
   border: 1px dotted;
 
   &:hover {
