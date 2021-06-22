@@ -297,3 +297,15 @@
     background-color: #e8dfdf;
   }
 }
+
+.enlace {
+  color: rgba(0, 0, 0);
+  display: inline-block;
+  padding: 0.4em;
+  margin-left: 290px;
+  border: 1px dotted;
+
+  &:hover {
+    background-color: #e8dfdf;
+  }
+}

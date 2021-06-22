@@ -88,6 +88,7 @@ const getSource = (source) => {
 };
 
 const CardSummary = ({ language, data, categoryColor }) => {
+  //
   const summary = copy[language].cardstack.description;
   const nombre = getVictimName(data.nombre_victima);
   const fuente = getSource(data.fuente);
@@ -98,7 +99,6 @@ const CardSummary = ({ language, data, categoryColor }) => {
       </span>
     );
   });
-
   return (
     <div className="card-row summary">
       <div className="card-cell">
@@ -120,7 +120,9 @@ const CardSummary = ({ language, data, categoryColor }) => {
         <p>{data.description}</p>
         {getVideos(data.videos)}
         {getImages(data.imgs)}
-        {fuente}
+        <p>{fuente}
+        <a className="enlace" href={'/#' + data.id} target="_blank" rel="noopener noreferrer"> Comparte este evento </a>
+        </p>
       </div>
     </div>
   );

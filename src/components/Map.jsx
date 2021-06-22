@@ -17,6 +17,7 @@ class Map extends Component {
       mapaCargado: false,
       mapTransformX: 0,
       mapTransformY: 0,
+      eventoId: 0,
     };
   }
 
@@ -103,12 +104,15 @@ class Map extends Component {
       if (validateEventChange(this.props.app.selected, prevProps.app.selected)) {
         // Fly to first  of events selected
         const eventPoint = this.props.app.selected.length > 0 ? this.props.app.selected[0] : null;
-
+        
+        this.setState({
+          eventoId: eventPoint.id
+         });
         if (eventPoint !== null && eventPoint.latitude && eventPoint.longitude) {
           this.map.flyTo({
             center: [eventPoint.longitude, eventPoint.latitude],
             zoom: 18,
-          });
+          });  
         }
       }
     }
@@ -216,7 +220,6 @@ class Map extends Component {
         if (!marker) {
           const el = createDonutChart(props);
           el.style.cursor = 'zoom-in';
-
           el.onclick = () => {
             this.map.getSource('puntosEventos').getClusterLeaves(id, props.point_count, 0, (err, aFeatures) => {
               if (err) return;
@@ -253,6 +256,27 @@ class Map extends Component {
 
     // after the GeoJSON data is loaded, update markers on the screen on every frame
     this.map.on('render', () => {
+     
+      //Obtener el hash (#) de la url y pasarlo como id
+     const validateHash = () => {
+        let pathHash = window.location.hash
+        let eventoId= parseInt(pathHash)
+        if (pathHash == "") {
+          return ""
+        } else {
+          eventoId = pathHash.substr(1)
+          return eventoId
+        }
+      }
+      // Si la url tiene #, cargar el evento correspondiente
+      let hashId = validateHash()
+      if (hashId != "" && hashId < this.props.domain.events.length) {
+        this.setState({
+          eventoId: hashId
+         });
+        this.props.methods.onSelect(this.props.domain.events[hashId]);
+      }
+
       if (!this.map.isSourceLoaded('puntosEventos')) return;
       updateMarkers();
     });
@@ -319,18 +343,24 @@ class Map extends Component {
 
     this.setState({
       puntosCargados: true,
+      visitado: false
     });
   }
 
   render() {
     const classes = 'map-wrapper';
 
+    // Antonia Evento Id - cargar
+    
+    
     return (
       <div className={classes} onKeyDown={this.props.onKeyDown} tabIndex="0">
         <div id={this.props.ui.dom.map} />
       </div>
     );
+    
   }
+
 }
 
 function mapStateToProps(state) {
