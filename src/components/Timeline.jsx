@@ -285,7 +285,7 @@ class Timeline extends Component {
 
   render() {
     if (!this.props.domain.events.length) return null;
-
+    
     let classes = `timeline-wrapper ${this.state.isFolded ? ' folded' : ''}`;
     const { dims } = this.state;
     const foldedStyle = { bottom: this.state.isFolded ? -dims.height : '58px' };
@@ -372,12 +372,18 @@ class Timeline extends Component {
 function mapStateToProps(state) {
   // Si del timeline se selecciona más de un evento, se borra el hash #. 
   //Si se selecciona un (1) evento, se agrega el hash #
-  if (state.app.selected.length > 1) {
-    window.history.replaceState(null, "New Page Title", " ")
-  } else if (state.app.selected.length == 1) {
+  let hashAgregado = 0
+  
+  if (state.app.selected.length > 1 && hashAgregado == 0) {
+    window.history.replaceState(null, "", " ")
+    hashAgregado = 1 
+  } else if (state.app.selected.length == 1 && hashAgregado == 1) {
     let id = `/#${state.app.selected[0]["id"]}`
-    window.history.replaceState(null, "New Page Title", id)
+    window.history.replaceState(null, "", id)
+    hashAgregado = 2
+    console.log(hashAgregado)
   }
+
 
   return {
     dimensions: selectors.selectDimensions(state),
@@ -398,6 +404,7 @@ function mapStateToProps(state) {
     },
     features: selectors.getFeatures(state),
   };
+
 }
 
 function mapDispatchToProps(dispatch) {
