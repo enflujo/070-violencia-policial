@@ -121,7 +121,7 @@ const CardSummary = ({ language, data, categoryColor }) => {
         {getVideos(data.videos)}
         {getImages(data.imgs)}
         {fuente}
-        <p className="enlace" ><a href={'/#' + data.id} target="_blank" rel="noopener noreferrer"> Comparte este evento </a></p>
+        <p className="enlace" ><a href={'/#' + data.id} target="_blank" rel="noopener noreferrer"> Compartir este evento </a></p>
       </div>
     </div>
   );
