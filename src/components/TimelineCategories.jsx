@@ -1,6 +1,5 @@
 import React, { Component, createRef, Fragment } from 'react';
-import { select } from 'd3-selection';
-import { drag } from 'd3-drag';
+import { select, drag } from 'd3';
 
 class TimelineCategories extends Component {
   constructor(props) {
@@ -25,29 +24,18 @@ class TimelineCategories extends Component {
   }
 
   renderCategory(cat, idx) {
-    const { features, dims } = this.props;
+    const { dims } = this.props;
     const { category } = cat;
     const strokeWidth = 1; // dims.trackHeight / (this.props.categories.length + 1)
-
-    if (
-      features.GRAPH_NONLOCATED &&
-      features.GRAPH_NONLOCATED.categories &&
-      features.GRAPH_NONLOCATED.categories.includes(category)
-    ) {
-      return null;
-    }
+    const categoriaY = this.props.getCategoryY(category);
+    if (!categoriaY) return;
 
     return (
       <Fragment key={`category-${idx}`}>
-        <g
-          className="tick"
-          style={{ strokeWidth }}
-          opacity="0.5"
-          transform={`translate(0,${this.props.getCategoryY(category)})`}
-        >
+        <g className="tick" style={{ strokeWidth }} opacity="0.5" transform={`translate(0,${categoriaY})`}>
           <line x1={dims.marginLeft + 150} x2={dims.width - dims.width_controls} />
         </g>
-        <g className="tick" opacity="1" transform={`translate(0,${this.props.getCategoryY(category)})`}>
+        <g className="tick" opacity="1" transform={`translate(0,${categoriaY})`}>
           <text x={dims.marginLeft - 5} dy="0.32em" fill="#f5f5f5">
             {category}
           </text>

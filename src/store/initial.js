@@ -1,5 +1,6 @@
 import { mergeDeep } from '../common/utilities';
 import global from '../common/global';
+import app from '../reducers/app';
 
 const initial = {
   /*
@@ -10,6 +11,14 @@ const initial = {
    *   in the domain will get rendered by React
    */
   domain: {
+    historias: {
+      estanDisparando: {
+        rango: [new Date(2020, 8, 8).getTime(), new Date(2020, 8, 11).getTime()],
+      },
+      represionMuerte: {
+        rango: [new Date(2021, 3, 4).getTime(), new Date(2021, 7, 1).getTime()],
+      },
+    },
     events: [],
     locations: [],
     categories: [],
@@ -67,7 +76,7 @@ const initial = {
         width_controls: 80,
       },
       // El formato es new Date(YYYY, M, D). ¡El Mes (M) va de 0 a 11, siempre le restamos 1 al mes como lo conocemos (ej: Enero es 0, Junio es 5, etc.)!
-      range: [new Date(2021, 3, 4), new Date(2021, 7, 1)],
+      range: [new Date(2021, 3, 4).getTime(), new Date(2021, 7, 1).getTime()],
       // rangeLimits: [new Date(1, 1, 1, 1), new Date()],
       zoomLevels: [
         { label: '20 años', duration: 10512000 },
@@ -105,17 +114,15 @@ const initial = {
     style: {
       categories: {
         default: global.fallbackEventColor,
-        // 'Disparo asociado a presencia de policía': '#99FF9E',
-        // 'Policía disparando': '#FF94A6',
+        'Disparo asociado a presencia de policía': '#32a852',
+        'Policía disparando': '#FF94A6',
         'Disparo sin referencia de origen': '#0378A6',
-        //'Policía disparando arma de fuego': '#2703A6',
         'Disparos en presencia de policía': '#007336',
         'Policía armado': '#97C9FF',
         Herido: '#F25C05',
         Muerto: '#ff2134',
         Contexto: '#fff697',
         'Otras agresiones': '#F2B035',
-        //'Otras agresiones': '#774ba3',
         'Conducta sospechosa policía': '#86f7f2',
         'Policía disparando arma de fuego': '#78548a',
       },
@@ -132,7 +139,7 @@ const initial = {
       timeslider: 'timeslider',
       map: 'map',
     },
-    eventRadius: 8,
+    eventRadius: 6,
   },
 
   features: {
@@ -153,8 +160,7 @@ if (process.env.store) {
   appStore = initial;
 }
 
-// NB: config.js dates get implicitly converted to strings in mergeDeepLeft
-appStore.app.timeline.range[0] = new Date(appStore.app.timeline.range[0]);
-appStore.app.timeline.range[1] = new Date(appStore.app.timeline.range[1]);
+// La historia que esté al final de domain.historias es con la que inicial el mapa.
+appStore.app.historiaActual = Object.keys(appStore.domain.historias).pop();
 
 export default appStore;

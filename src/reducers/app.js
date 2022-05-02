@@ -21,6 +21,7 @@ import {
   SET_LOADING,
   SET_NOT_LOADING,
   UPDATE_SEARCH_QUERY,
+  ACTUALIZAR_HISTORIA,
 } from '../actions';
 
 function updateHighlighted(appState, action) {
@@ -152,6 +153,13 @@ function updateSearchQuery(appState, action) {
   };
 }
 
+function actualizarHistoria(appState, action) {
+  return {
+    ...appState,
+    historiaActual: action.nombre,
+  };
+}
+
 function app(appState = initial.app, action) {
   switch (action.type) {
     case UPDATE_HIGHLIGHTED:
@@ -194,6 +202,8 @@ function app(appState = initial.app, action) {
       return setNotLoading(appState);
     case UPDATE_SEARCH_QUERY:
       return updateSearchQuery(appState, action);
+    case ACTUALIZAR_HISTORIA:
+      return actualizarHistoria(appState, action);
     default:
       return appState;
   }
