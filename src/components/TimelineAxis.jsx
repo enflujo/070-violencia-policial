@@ -1,10 +1,6 @@
 import React from 'react';
-import { axisBottom } from 'd3-axis';
-import { timeFormat } from 'd3-time-format';
-import { select } from 'd3-selection';
+import { select, axisBottom, timeFormat, transition } from 'd3';
 // Toca importarlo para que funcione select().translation()
-import transition from 'd3-transition';
-
 class TimelineAxis extends React.Component {
   constructor(props) {
     super(props);
@@ -55,6 +51,7 @@ class TimelineAxis extends React.Component {
 
   render() {
     const PADDING = 20;
+
     return (
       <>
         <g ref={this.xAxis0Ref} transform={`translate(0, ${PADDING})`} clipPath="url(#clip)" className="axis xAxis" />
