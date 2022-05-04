@@ -1,3 +1,5 @@
+name: Despliegue
+
 on:
   push:
     branches: [violencia-policial]
@@ -9,12 +11,13 @@ jobs:
 
     steps:
       - name: 🐯 Obtener código del repositorio
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: 🐝 Usar Node
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
-          node-version: '14'
+          node-version: '16'
+          cache: 'npm'
 
       - name: 🔨 Hacer build
         run: |

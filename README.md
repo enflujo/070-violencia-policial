@@ -1,6 +1,9 @@
-<h1 align="center">
-  TimeMap v0
-</h1>
+# Violencia Policial
+
+![Estilo Código](https://github.com/enflujo/070-violencia-policial/actions/workflows/estilo-codigo.yml/badge.svg)
+![Despliegue](https://github.com/enflujo/070-violencia-policial/actions/workflows/ftp.yml/badge.svg)
+![Tamaño](https://img.shields.io/github/repo-size/enflujo/070-violencia-policial?color=%235757f7&label=Tama%C3%B1o%20repo&logo=open-access&logoColor=white)
+![Licencia](https://img.shields.io/github/license/enflujo/070-violencia-policial?label=Licencia&logo=open-source-initiative&logoColor=white)
 
 <p align="center">
   <strong>TimeMap is a tool for exploration, monitoring and classification of incidents in time and space.<br>See a <a href="https://ilovaisk.forensic-architecture.org">live instance here</a>.</strong><br>
