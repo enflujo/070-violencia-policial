@@ -167,6 +167,7 @@ class Layout extends Component {
   };
 
   actualizarHistoria = (nombre) => {
+    this.props.actions.updateSelected([]);
     this.props.actions.actualizarHistoria(nombre);
   };
 
