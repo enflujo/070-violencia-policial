@@ -182,6 +182,9 @@ class Map extends Component {
 
       if (!marker) {
         const el = this.crearDona(props);
+
+        if (!el) continue;
+
         el.style.cursor = 'zoom-in';
         el.onclick = () => {
           const fuente = this.map.getSource('puntosEventos');
@@ -204,7 +207,7 @@ class Map extends Component {
             });
           });
         };
-        //
+
         marker = this.markers[id] = new mapboxgl.Marker({
           element: el,
         }).setLngLat(coords);
@@ -232,6 +235,9 @@ class Map extends Component {
       offsets.push(total);
       total += counts[i];
     }
+
+    if (total === 0) return;
+
     const fontSize = total >= 1000 ? 22 : total >= 100 ? 20 : total >= 10 ? 13 : 10;
     const r = total >= 1000 ? 50 : total >= 100 ? 32 : total >= 10 ? 24 : 18;
     const r0 = Math.round(r * 0.6);
@@ -269,6 +275,9 @@ class Map extends Component {
     const largeArc = end - start > 0.5 ? 1 : 0;
     const _x0 = r + r0 * x0;
     const _y0 = r + r0 * y0;
+    if (isNaN(_x0)) {
+      console.log(props, r, r0, start, end);
+    }
 
     return (
       `<path d="M ${_x0} ${_y0} L ${r + r * x0} ${r + r * y0}` +
