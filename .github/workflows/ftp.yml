@@ -19,6 +19,12 @@ jobs:
           node-version: '16'
           cache: 'npm'
 
+      - name: Crear .env
+        run: |
+          touch .env
+          echo MAPBOX_TOKEN=${{ secrets.MAPBOX_TOKEN }} >> .env
+          cat .env
+
       - name: 🔨 Hacer build
         run: |
           npm install
