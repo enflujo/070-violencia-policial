@@ -288,6 +288,15 @@ class Map extends Component {
   }
 
   componentDidUpdate(prevProps) {
+    if (this.props.app.selected.length) {
+      const { latitude, longitude } = this.props.app.selected[0];
+
+      this.map.flyTo({
+        center: [longitude, latitude],
+        speed: 2.35,
+        zoom: 18,
+      });
+    }
     if (prevProps.historiaActual == this.props.historiaActual) return;
 
     this.actualizarEstiloMapa();

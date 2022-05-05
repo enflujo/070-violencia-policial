@@ -96,7 +96,7 @@ class Layout extends Component {
   };
 
   findEventIdx = (theEvent) => {
-    return binarySearch(this.props.eventos, theEvent, (theev, otherev) => {
+    return binarySearch(this.props.domain[this.props.app.historiaActual].eventos, theEvent, (theev, otherev) => {
       return theev.datetime - otherev.datetime;
     });
   };
@@ -106,17 +106,17 @@ class Layout extends Component {
     const TIMELINE_AXIS = 0;
     if (axis === TIMELINE_AXIS) {
       // find in events
-      const { eventos } = this.props;
+      const { eventos } = this.props.domain[this.props.app.historiaActual];
 
-      const fechaSelecionado = selected.datetime.getTime();
+      const fechaSelecionado = selected.datetime;
+
       matchedEvents = eventos.filter((event) => {
-        return event.datetime.getTime() === fechaSelecionado;
+        return event.datetime === fechaSelecionado;
       });
     } else {
       if (Array.isArray(selected)) {
         selected.forEach((event) => matchedEvents.push(event));
       } else {
-        // const std = { ...selected };
         matchedEvents.push(selected);
       }
     }
@@ -139,7 +139,7 @@ class Layout extends Component {
 
   onKeyDown = (e) => {
     const { selected } = this.props.app;
-    const { eventos } = this.props;
+    const { eventos } = this.props.domain[this.props.app.historiaActual];
 
     const prev = (idx) => {
       this.handleSelect(eventos[idx - 1], 0);
