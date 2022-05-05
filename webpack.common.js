@@ -55,9 +55,6 @@ const config = {
     extensions: ['*', '.js'],
   },
   plugins: [
-    new webpack.ProvidePlugin({
-      process: 'process/browser',
-    }),
     new webpack.DefinePlugin({
       'process.env': {
         ...userConfig,
