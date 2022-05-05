@@ -1,8 +1,7 @@
 import React, { Component, createRef } from 'react';
-import { bindActionCreators } from 'redux';
+import { bindActionCreators } from '@reduxjs/toolkit';
 import { connect } from 'react-redux';
-import { timeMinute, timeSecond } from 'd3-time';
-import { scaleTime } from 'd3-scale';
+import { timeMinute, timeSecond, scaleTime } from 'd3';
 import * as selectors from '../selectors';
 import { setLoading, setNotLoading } from '../actions';
 
@@ -30,6 +29,14 @@ class Timeline extends Component {
 
   componentDidMount() {
     window.addEventListener('resize', this.computeDims);
+
+    const { trackHeight, marginTop } = this.props.dimensions;
+    this.setState({
+      scaleX: this.makeScaleX(),
+      timerange: this.props.rango,
+      scaleY: this.makeScaleY(this.props.categorias, trackHeight, marginTop),
+    });
+    this.computeDims();
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -37,26 +44,21 @@ class Timeline extends Component {
       this.setState({
         scaleX: this.makeScaleX(),
       });
-      // for some reason the timeline was not rendered even witht the previous solution to fire a resize event on componentDidMount
+      // for some reason the timeline was not rendered even with the previous solution to fire a resize event on componentDidMount
       this.computeDims();
     }
 
-    if (this.props.app && this.props.app.timeline && this.props.app.timeline.range) {
-      if (JSON.stringify(this.props.app.timeline.range) !== JSON.stringify(this.state.timerange)) {
-        this.setState({
-          timerange: this.props.app.timeline.range,
-        });
-        this.computeDims();
-      }
+    if (this.props.rango !== this.state.timerange) {
+      this.setState({
+        timerange: this.props.rango,
+      });
+      this.computeDims();
     }
 
-    if (
-      JSON.stringify(this.props.domain.categories) !== JSON.stringify(prevProps.domain.categories) ||
-      JSON.stringify(this.props.dimensions) !== JSON.stringify(prevProps.dimensions)
-    ) {
+    if (this.props.categorias !== prevProps.categorias || this.props.dimensions !== prevProps.dimensions) {
       const { trackHeight, marginTop } = this.props.dimensions;
       this.setState({
-        scaleY: this.makeScaleY(this.props.domain.categories, trackHeight, marginTop),
+        scaleY: this.makeScaleY(this.props.categorias, trackHeight, marginTop),
       });
       this.computeDims();
     }
@@ -69,18 +71,13 @@ class Timeline extends Component {
   }
 
   makeScaleY(categories, trackHeight, marginTop) {
-    const { features } = this.props;
-    if (features.GRAPH_NONLOCATED && features.GRAPH_NONLOCATED.categories) {
-      categories = categories.filter((cat) => !features.GRAPH_NONLOCATED.categories.includes(cat.category));
-    }
     const catHeight = trackHeight / categories.length;
     const shiftUp = trackHeight / categories.length / 2;
     const marginShift = marginTop === 0 ? 0 : marginTop;
     const manualAdjustment = trackHeight <= 60 ? (trackHeight <= 30 ? -8 : -5) : 0;
-    const catsYpos = categories.map((g, i) => {
-      return (i + 1) * catHeight - shiftUp + marginShift + manualAdjustment;
-    });
+    const catsYpos = categories.map((g, i) => (i + 1) * catHeight - shiftUp + marginShift + manualAdjustment);
     const catMap = categories.map((c) => c.category);
+
     return (cat) => {
       const idx = catMap.indexOf(cat);
       return catsYpos[idx];
@@ -254,19 +251,8 @@ class Timeline extends Component {
   getDatetimeX = (datetime) => this.state.scaleX(datetime);
 
   getY = (event) => {
-    const { features, domain } = this.props;
-    const { USE_CATEGORIES, GRAPH_NONLOCATED } = features;
-
-    if (!USE_CATEGORIES) {
-      return this.state.dims.trackHeight / 2;
-    }
-
-    const { category, project } = event;
-    if (GRAPH_NONLOCATED && GRAPH_NONLOCATED.categories.includes(category)) {
-      return this.state.dims.marginTop + domain.projects[project].offset + this.props.ui.eventRadius;
-    }
+    const { category } = event;
     if (!this.state.scaleY) return 0;
-
     return this.state.scaleY(category);
   };
 
@@ -284,15 +270,14 @@ class Timeline extends Component {
   };
 
   render() {
-    if (!this.props.domain.events.length) return null;
-
+    if (!this.state.scaleX) return null;
     let classes = `timeline-wrapper ${this.state.isFolded ? ' folded' : ''}`;
     const { dims } = this.state;
     const foldedStyle = { bottom: this.state.isFolded ? -dims.height : '58px' };
     const heightStyle = { height: dims.height };
     const extraStyle = { ...heightStyle, ...foldedStyle };
     const contentHeight = { height: dims.contentHeight };
-    const { categories } = this.props.domain;
+    const { categorias } = this.props;
 
     return (
       <div className={classes} style={extraStyle} onKeyDown={this.props.onKeyDown} tabIndex="1">
@@ -320,7 +305,7 @@ class Timeline extends Component {
                 onDragStart={this.onDragStart}
                 onDrag={this.onDrag}
                 onDragEnd={this.onDragEnd}
-                categories={this.props.domain.categories}
+                categories={categorias}
                 features={this.props.features}
                 getCategoryColor={this.props.methods.getCategoryColor}
               />
@@ -341,7 +326,7 @@ class Timeline extends Component {
                 eventRadius={this.props.ui.eventRadius}
               />
               <Events
-                events={this.props.domain.events}
+                events={this.props.eventos}
                 projects={this.props.domain.projects}
                 styleDatetime={this.styleDatetime}
                 getDatetimeX={this.getDatetimeX}
@@ -350,7 +335,7 @@ class Timeline extends Component {
                   if (group === 'None') {
                     return [];
                   }
-                  return categories.map((c) => c.group === group);
+                  return categorias.map((c) => c.group === group);
                 }}
                 getCategoryColor={this.props.methods.getCategoryColor}
                 transitionDuration={this.state.transitionDuration}
@@ -373,7 +358,6 @@ function mapStateToProps(state) {
   return {
     dimensions: selectors.selectDimensions(state),
     domain: {
-      events: selectors.selectStackedEvents(state),
       projects: selectors.selectProjects(state),
       categories: selectors.getCategories(state),
     },

@@ -2,16 +2,7 @@
 import { urlFromEnv } from '../common/utilities';
 
 // TODO: relegate these URLs entirely to environment variables
-// const CONFIG_URL = urlFromEnv('CONFIG_EXT')
-const EVENT_DATA_URL = urlFromEnv('EVENTS_EXT');
-const VICTIMAS_EXT = urlFromEnv('VICTIMAS_EXT');
-const CAIS_EXT = urlFromEnv('CAIS_EXT');
-// const CATEGORY_URL = urlFromEnv('CATEGORIES_EXT');
-// const ASSOCIATIONS_URL = urlFromEnv('ASSOCIATIONS_EXT');
 const SOURCES_URL = urlFromEnv('SOURCES_EXT');
-// const SITES_URL = urlFromEnv('SITES_EXT');
-// const SHAPES_URL = urlFromEnv('SHAPES_EXT');
-const STATIC_URL = urlFromEnv('STATIC_EXT');
 
 export function fetchDomain() {
   const notifications = [];
@@ -24,119 +15,51 @@ export function fetchDomain() {
     return [];
   }
 
-  return (dispatch, getState) => {
-    if (!EVENT_DATA_URL) return;
-    // const features = getState().features;
+  return async (dispatch, getState) => {
     dispatch(toggleFetchingDomain());
 
-    // let configPromise = Promise.resolve([])
-    // if (features.USE_REMOTE_CONFIG) {
-    //   configPromise = fetch(CONFIG_URL)
-    //     .then(response => response.json())
-    //     .catch(() => handleError("Couldn't find data at the config URL you specified."))
-    // }
-
-    // NB: EVENT_DATA_URL is a list, and so results are aggregated
-
-    const eventPromise = Promise.all(
-      EVENT_DATA_URL.map((url) =>
-        fetch(url)
-          .then((response) => response.json())
-          .catch(() => handleError('events'))
-      )
-    ).then((results) => results.flatMap((t) => t));
-
-    /**
-     * Nuevo endpoint para importar las categorias y CAIs en proyecto 9S.
-     * TODO: ¿que forma le damos a los siguientes proyectos? - definir este endpoint de forma genérica.
-     */
-    const staticPromise = fetch(STATIC_URL)
+    const promesaEstanDisparando = fetch(urlFromEnv('EVENTOS_ESTAN_DISPARANDO'))
       .then((response) => response.json())
-      .catch(() => handleError('static'));
+      .catch(() => handleError('eventosNueveS'));
 
-    const caisPromise = fetch(CAIS_EXT)
+    const promesaRepresion = fetch(urlFromEnv('EVENTOS_REPRESION'))
+      .then((response) => response.json())
+      .catch(() => handleError('eventosRepresion'));
+
+    const promesaCais = fetch(urlFromEnv('CAIS_EXT'))
       .then((response) => response.json())
       .catch(() => handleError('cais'));
 
-    const victimasPromise = fetch(VICTIMAS_EXT)
+    const promesaVictimas = fetch(urlFromEnv('VICTIMAS_EXT'))
       .then((response) => response.json())
       .catch(() => handleError('victimas'));
 
-    // let catPromise = Promise.resolve([]);
-    // if (features.USE_CATEGORIES) {
-    //   catPromise = fetch(CATEGORY_URL)
-    //     .then((response) => response.json())
-    //     .catch(() => handleError(domainMsg('categories')));
-    // }
+    try {
+      const result = {
+        estanDisparando: {
+          eventos: await promesaEstanDisparando,
+          cais: await promesaCais,
+          victimas: await promesaVictimas,
+        },
+        represionMuerte: {
+          eventos: await promesaRepresion,
+        },
+        associations: [],
+        notifications,
+      };
 
-    // let associationsPromise = Promise.resolve([]);
-    // if (features.USE_ASSOCIATIONS) {
-    //   if (!ASSOCIATIONS_URL) {
-    //     associationsPromise = Promise.resolve(
-    //       handleError('USE_ASSOCIATIONS is true, but you have not provided a ASSOCIATIONS_EXT')
-    //     );
-    //   } else {
-    //     associationsPromise = fetch(ASSOCIATIONS_URL)
-    //       .then((response) => response.json())
-    //       .catch(() => handleError(domainMsg('associations')));
-    //   }
-    // }
+      result.eventos = result.estanDisparando.eventos;
 
-    // let sourcesPromise = Promise.resolve([]);
-    // if (features.USE_SOURCES) {
-    //   if (!SOURCES_URL) {
-    //     sourcesPromise = Promise.resolve(handleError('USE_SOURCES is true, but you have not provided a SOURCES_EXT'));
-    //   } else {
-    //     sourcesPromise = fetch(SOURCES_URL)
-    //       .then((response) => response.json())
-    //       .catch(() => handleError(domainMsg('sources')));
-    //   }
-    // }
-
-    // let sitesPromise = Promise.resolve([]);
-    // if (features.USE_SITES) {
-    //   sitesPromise = fetch(SITES_URL)
-    //     .then((response) => response.json())
-    //     .catch(() => handleError(domainMsg('sites')));
-    // }
-
-    // let shapesPromise = Promise.resolve([]);
-    // if (features.USE_SHAPES) {
-    //   shapesPromise = fetch(SHAPES_URL)
-    //     .then((response) => response.json())
-    //     .catch(() => handleError(domainMsg('shapes')));
-    // }
-
-    return Promise.all([eventPromise, caisPromise, staticPromise, victimasPromise])
-      .then((response) => {
-        const eventos = response[0].filter((evento) => +evento.date.split('/')[2] === 2021);
-
-        const result = {
-          // eventos: response[0],
-          eventos: eventos,
-          categories: response[2].categories ? response[2].categories.map((cat) => ({ category: cat })) : response[2],
-          // categories: response[1].categories,
-          cais: response[1],
-          victimas: [],
-          // filters: response[1].categories,
-          associations: [],
-          // sources: response[3],
-          // sites: response[4],
-          // shapes: response[5],
-          notifications,
-        };
-
-        if (Object.values(result).some((resp) => resp.hasOwnProperty('error'))) {
-          throw new Error('Some URLs returned negative. If you are in development, check the server is running');
-        }
-        dispatch(toggleFetchingDomain());
-        return result;
-      })
-      .catch((err) => {
-        dispatch(fetchError(err.message));
-        dispatch(toggleFetchingDomain());
-        console.log(err);
-      });
+      if (Object.values(result).some((resp) => resp.hasOwnProperty('error'))) {
+        throw new Error('Some URLs returned negative. If you are in development, check the server is running');
+      }
+      dispatch(toggleFetchingDomain());
+      return result;
+    } catch (err) {
+      dispatch(fetchError(err.message));
+      dispatch(toggleFetchingDomain());
+      console.log(err);
+    }
   };
 }
 
@@ -339,5 +262,13 @@ export function fetchSourceError(msg) {
   return {
     type: FETCH_SOURCE_ERROR,
     msg,
+  };
+}
+
+export const ACTUALIZAR_HISTORIA = 'ACTUALIZAR_HISTORIA';
+export function actualizarHistoria(nombre) {
+  return {
+    type: ACTUALIZAR_HISTORIA,
+    nombre,
   };
 }

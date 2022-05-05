@@ -13,8 +13,8 @@ module.exports = {
   store: {
     app: {
       map: {
-        anchor: [31.356397, 34.784818]
-      }
+        anchor: [31.356397, 34.784818],
+      },
     },
     features: {
       USE_CATEGORIES: false,
@@ -22,7 +22,7 @@ module.exports = {
       USE_SOURCES: false,
       USE_COVER: false,
       GRAPH_NONLOCATED: false,
-      HIGHLIGHT_GROUPS: false
-    }
-  }
-}
+      HIGHLIGHT_GROUPS: false,
+    },
+  },
+};

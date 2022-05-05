@@ -1,6 +1,6 @@
 /* global alert, Event */
 import React, { Component } from 'react';
-import { bindActionCreators } from 'redux';
+import { bindActionCreators } from '@reduxjs/toolkit';
 import { connect } from 'react-redux';
 
 // Globals and utilities
@@ -27,7 +27,7 @@ class Layout extends Component {
 
     this.state = {
       muertos: [],
-      historiaActual: 'segunda',
+      historiaActual: null,
       historias: {
         estanDisparando: {
           mapa: {
@@ -43,7 +43,7 @@ class Layout extends Component {
             ],
           },
         },
-        segunda: {
+        represionMuerte: {
           mapa: {
             styleUrl: 'mapbox://styles/juancgonza/ckphofn3b1i8q17ppt2bp7p3r?optimize=true',
             anchor: [-77.477, 1.012],
@@ -65,27 +65,26 @@ class Layout extends Component {
     const promise = this.props.actions.fetchDomain();
 
     if (promise) {
-      promise.then((domain) =>
-        this.props.actions.updateDomain({
-          domain,
-          features: this.props.features,
-        })
-      );
+      promise.then((domain) => {
+        this.props.actions.updateDomain({ domain });
+        this.actualizarHistoria(this.props.app.historiaActual);
+      });
     }
   }
 
   componentDidUpdate() {
-    if (!this.state.muertos.length && this.props.domain && this.props.domain.events.length) {
-      const muertos = this.props.domain.events
-        .filter((event) => {
-          return event.category === 'Muerto';
-        })
-        .map((event) => event.nombre_victima);
-
-      this.setState({
-        muertos: muertos,
-      });
-    }
+    // if (!this.state.muertos.length && this.props.domain && this.props.domain.events.length) {
+    //   const muertos = this.props.domain.events
+    //     .filter((event) => {
+    //       return event.category === 'Muerto';
+    //     })
+    //     .map((event) => event.nombre_victima);
+    //   if (muertos.length) {
+    //     this.setState({
+    //       muertos: muertos,
+    //     });
+    //   }
+    // }
   }
 
   handleHighlight = (highlighted) => {
@@ -97,8 +96,7 @@ class Layout extends Component {
   };
 
   findEventIdx = (theEvent) => {
-    const { events } = this.props.domain;
-    return binarySearch(events, theEvent, (theev, otherev) => {
+    return binarySearch(this.props.domain[this.props.app.historiaActual].eventos, theEvent, (theev, otherev) => {
       return theev.datetime - otherev.datetime;
     });
   };
@@ -108,17 +106,17 @@ class Layout extends Component {
     const TIMELINE_AXIS = 0;
     if (axis === TIMELINE_AXIS) {
       // find in events
-      const { events } = this.props.domain;
+      const { eventos } = this.props.domain[this.props.app.historiaActual];
 
-      const fechaSelecionado = selected.datetime.getTime();
-      matchedEvents = events.filter((event) => {
-        return event.datetime.getTime() === fechaSelecionado;
+      const fechaSelecionado = selected.datetime;
+
+      matchedEvents = eventos.filter((event) => {
+        return event.datetime === fechaSelecionado;
       });
     } else {
       if (Array.isArray(selected)) {
         selected.forEach((event) => matchedEvents.push(event));
       } else {
-        // const std = { ...selected };
         matchedEvents.push(selected);
       }
     }
@@ -141,13 +139,13 @@ class Layout extends Component {
 
   onKeyDown = (e) => {
     const { selected } = this.props.app;
-    const { events } = this.props.domain;
+    const { eventos } = this.props.domain[this.props.app.historiaActual];
 
     const prev = (idx) => {
-      this.handleSelect(events[idx - 1], 0);
+      this.handleSelect(eventos[idx - 1], 0);
     };
     const next = (idx) => {
-      this.handleSelect(events[idx + 1], 0);
+      this.handleSelect(eventos[idx + 1], 0);
     };
     if (selected.length > 0) {
       const ev = selected[selected.length - 1];
@@ -169,20 +167,21 @@ class Layout extends Component {
   };
 
   actualizarHistoria = (nombre) => {
-    this.setState({
-      historiaActual: nombre,
-    });
+    this.props.actions.updateSelected([]);
+    this.props.actions.actualizarHistoria(nombre);
   };
 
   render() {
     const { actions, app, domain, ui } = this.props;
+    if (!domain[app.historiaActual]) return;
+    const { eventos, categorias, cais } = domain[app.historiaActual];
 
     return (
       <div>
         {/* Este es el que contiene el menu y la historia */}
         <Toolbar
-          historiaActual={this.state.historiaActual}
-          propiedadesMapa={this.state.historias[this.state.historiaActual].mapa}
+          eventos={eventos}
+          historiaActual={app.historiaActual}
           actualizarHistoria={this.actualizarHistoria}
           methods={{
             onTitle: actions.toggleCover,
@@ -192,8 +191,12 @@ class Layout extends Component {
         />
         {/* Acá esta la instancia del mapa */}
         <Map
-          historiaActual={this.state.historiaActual}
-          propiedadesMapa={this.state.historias[this.state.historiaActual].mapa}
+          historiaActual={app.historiaActual}
+          eventos={eventos}
+          categorias={categorias}
+          colores={ui.style.categories}
+          cais={cais}
+          propiedadesMapa={this.state.historias[app.historiaActual].mapa}
           onKeyDown={this.onKeyDown}
           methods={{
             getCategoryColor: this.getCategoryColor,
@@ -201,11 +204,15 @@ class Layout extends Component {
           }}
         />
         <Timeline
+          eventos={eventos}
+          categorias={categorias}
           onKeyDown={this.onKeyDown}
+          rango={domain.historias[app.historiaActual].rango}
           methods={{
             onSelect: (ev) => this.handleSelect(ev, 0),
             onUpdateTimerange: actions.updateTimeRange,
             getCategoryColor: this.getCategoryColor,
+            actualizarRangoTiempo: actions.updateTimeRange,
           }}
         />
         <CardStack
@@ -228,7 +235,7 @@ class Layout extends Component {
           notifications={domain.notifications}
           onToggle={actions.markNotificationsRead}
         />
-        <Search queryString={app.searchQuery} events={domain.events} onSearchRowClick={this.handleSelect} />
+        <Search queryString={app.searchQuery} eventos={eventos} onSearchRowClick={this.handleSelect} />
         <LoadingOverlay
           isLoading={app.loading || app.flags.isFetchingDomain}
           ui={app.flags.isFetchingDomain}

@@ -16,8 +16,7 @@ export function calcDatetime(date, time) {
   const hoursI = formats.time.indexOf('hh');
   const minutesI = formats.time.indexOf('mm');
 
-  // Months go from 0-11, ergo the -1 in months.
-  return new Date(d[yI], d[mI] - 1, d[dI], t[hoursI], t[minutesI]);
+  return new Date(d[yI], d[mI] - 1, d[dI], t[hoursI], t[minutesI]).getTime();
 }
 
 /**

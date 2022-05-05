@@ -1,12 +1,12 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
 import store from './store';
 import App from './components/App.jsx';
 
-ReactDOM.render(
+const raiz = createRoot(document.getElementById('explore-app'));
+raiz.render(
   <Provider store={store}>
     <App />
-  </Provider>,
-  document.getElementById('explore-app')
+  </Provider>
 );

@@ -1,4 +1,4 @@
-import { isObject, isArray, isString } from 'typanion';
+import { isObject, isArray, isString, isOptional } from 'typanion';
 
 export default isObject({
   category: isString(),
@@ -11,7 +11,7 @@ export default isObject({
   latitude: isString(),
   location: isString(),
   longitude: isString(),
-  nombre_victima: isString(),
-  ubicacion: isString(),
+  nombre_victima: isOptional(isString()),
+  ubicacion: isOptional(isString()),
   videos: isArray(isString()),
 });

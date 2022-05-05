@@ -1,10 +1,11 @@
-const root = process.env.NODE_ENV === 'production' ? 'https://cartoapi.enflujo.com' : 'http://localhost:4040';
+const rutaApi = process.env.NODE_ENV === 'production' ? process.env.URL_API : 'http://localhost:4040';
 
 module.exports = {
   display_title: 'CARTOGRAFÍA DE LA VIOLENCIA POLICIAL',
-  SERVER_ROOT: root,
+  SERVER_ROOT: rutaApi,
   CAIS_EXT: '/api/gvp/cais/rows',
-  EVENTS_EXT: '/api/gvp/eventos/deeprows',
+  EVENTOS_REPRESION: '/api/gvp/eventos/deeprows',
+  EVENTOS_ESTAN_DISPARANDO: '/api/gvp/nueve_s/deeprows',
   STATIC_EXT: '/api/gvp/menus/columns',
   VICTIMAS_EXT: '/api/gvp/victimas/rows',
   FILTER_TREE_EXT: '/api/gvp/menus/columns',
@@ -12,13 +13,11 @@ module.exports = {
   SHAPES_EXT: '',
   DATE_FMT: 'DD/MM/YYYY',
   TIME_FMT: 'hh:mm',
-  MAPBOX_TOKEN: 'pk.eyJ1IjoianVhbmNnb256YSIsImEiOiJja3BoaWJ0a3EwZXViMzFsYWllMGJiZHk0In0.P6r6Zi6Xx5NGK1kPK_9hcQ',
+  MAPBOX_TOKEN: process.env.MAPBOX_TOKEN,
   store: {
+    historias: ['estanDisparando', 'represionMuerte'],
     app: {
       language: 'es-MX',
-      map: {
-        anchor: [2.6445491, -74.0686627],
-      },
     },
     features: {
       USE_CATEGORIES: true,

@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 
 export default ({ highlights, events, x, y, width, height, onSelect, styleProps, idx }) => {
   if (highlights.length === 0) {

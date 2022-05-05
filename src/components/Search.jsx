@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { bindActionCreators } from 'redux';
+import { bindActionCreators } from '@reduxjs/toolkit';
 import { connect } from 'react-redux';
 import * as actions from '../actions';
 
@@ -36,7 +36,7 @@ class Search extends React.Component {
     if (!this.props.queryString) {
       searchResults = [];
     } else {
-      searchResults = this.props.events.filter((event) =>
+      searchResults = this.props.eventos.filter((event) =>
         searchAttributes.some((attribute) => {
           if (event[attribute]) {
             return event[attribute].toLowerCase().includes(this.props.queryString.toLowerCase());
