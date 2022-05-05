@@ -52,19 +52,7 @@ class TimelineCategories extends Component {
       ? this.props.categories.map((cat, idx) => this.renderCategory(cat, idx))
       : this.renderCategory('Events', 0);
 
-    return (
-      <g className="yAxis">
-        {categories}
-        <rect
-          ref={this.grabRef}
-          className="drag-grabber"
-          x={dims.marginLeft}
-          y={dims.marginTop}
-          width={dims.width - dims.marginLeft - dims.width_controls}
-          height="100%"
-        />
-      </g>
-    );
+    return <g className="yAxis">{categories}</g>;
   }
 }
 

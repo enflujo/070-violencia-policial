@@ -14,5 +14,6 @@ src/\.DS_Store
 package-lock.json
 tags
 .error
-.logs
+*.logs
+*.log
 compilation-stats.json

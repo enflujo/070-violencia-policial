@@ -1,22 +1,18 @@
-import React, { Fragment } from 'react';
-import DatetimeDot from './DatetimeDot.jsx';
+import React from 'react';
 import DatetimeBar from './DatetimeBar.jsx';
-import DatetimeSquare from './DatetimeSquare.jsx';
-import DatetimeStar from './DatetimeStar.jsx';
 import Project from './Project.jsx';
 import { calcOpacity } from '../../../common/utilities';
 
 function renderDot(event, styles, props, idx) {
   return (
-    <DatetimeDot
-      key={idx}
-      onSelect={props.onSelect}
-      category={event.category}
-      events={[event]}
-      x={props.x}
-      y={props.y}
+    <circle
+      key={`eventDot-${idx}`}
+      onClick={props.onSelect}
+      className="event"
+      cx={props.x}
+      cy={props.y}
+      style={styles}
       r={props.eventRadius}
-      styleProps={styles}
     />
   );
 }
@@ -45,27 +41,32 @@ function renderBar(event, styles, props, idx) {
 }
 
 function renderDiamond(event, styles, props, idx) {
+  const r = 1.8 * props.eventRadius;
   return (
-    <DatetimeSquare
-      key={idx}
+    <rect
+      key={`dateTimeSquare-${idx}`}
       onSelect={props.onSelect}
+      className="event"
       x={props.x}
-      y={props.y}
-      r={1.8 * props.eventRadius}
-      styleProps={styles}
+      y={props.y - r}
+      style={styleProps}
+      width={r}
+      height={r}
+      transform={`rotate(45, ${props.x}, ${props.y})`}
     />
   );
 }
 
 function renderStar(event, styles, props, idx) {
   return (
-    <DatetimeStar
-      key={idx}
-      onSelect={props.onSelect}
+    <polygon
+      key={`dateTimeStar-${idx}`}
+      onClick={props.onSelect}
+      className="event"
       x={props.x}
-      y={props.y}
-      r={1.8 * props.eventRadius}
-      styleProps={{ ...styles, fillRule: 'nonzero' }}
+      y={props.y - 1.8 * props.eventRadius}
+      style={{ ...styles, fillRule: 'nonzero' }}
+      points={`${x},${y + s} ${x - s},${y - s} ${x + s},${y} ${x - s},${y} ${x + s},${y - s}`}
       transform="rotate(90)"
     />
   );
@@ -73,7 +74,6 @@ function renderStar(event, styles, props, idx) {
 
 const TimelineEvents = ({
   events,
-  projects,
   getDatetimeX,
   getY,
   getCategoryColor,
@@ -127,34 +127,7 @@ const TimelineEvents = ({
     );
   }
 
-  let renderProjects = () => null;
-
-  if (features.GRAPH_NONLOCATED) {
-    renderProjects = () => {
-      return (
-        <>
-          {Object.values(projects).map((project, idx) => (
-            <Project
-              key={`project-${idx}`}
-              {...project}
-              eventRadius={eventRadius}
-              onClick={() => console.log(project)}
-              getX={getDatetimeX}
-              dims={dims}
-              colour={getCategoryColor(project.category)}
-            />
-          ))}
-        </>
-      );
-    };
-  }
-
-  return (
-    <g clipPath="url(#clip)">
-      {renderProjects()}
-      {events.map((event, idx) => renderEvent(event, idx))}
-    </g>
-  );
+  return <g>{events.map((event, idx) => renderEvent(event, idx))}</g>;
 };
 
 export default TimelineEvents;

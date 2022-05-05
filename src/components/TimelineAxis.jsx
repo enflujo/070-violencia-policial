@@ -54,13 +54,8 @@ class TimelineAxis extends React.Component {
 
     return (
       <>
-        <g ref={this.xAxis0Ref} transform={`translate(0, ${PADDING})`} clipPath="url(#clip)" className="axis xAxis" />
-        <g
-          ref={this.xAxis1Ref}
-          transform={`translate(0, ${-PADDING / 2.5})`}
-          clipPath="url(#clip)"
-          className="axis xAxis"
-        />
+        <g ref={this.xAxis0Ref} transform={`translate(0, ${PADDING})`} className="axis xAxis" />
+        <g ref={this.xAxis1Ref} transform={`translate(0, ${-PADDING / 2.5})`} className="axis xAxis" />
       </>
     );
   }

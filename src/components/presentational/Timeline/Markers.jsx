@@ -71,7 +71,7 @@ const TimelineMarkers = ({
     }
   }
 
-  return <g clipPath="url(#clip)">{selected.map((event, idx) => renderMarker(event, idx))}</g>;
+  return <g>{selected.map((event, idx) => renderMarker(event, idx))}</g>;
 };
 
 export default TimelineMarkers;
