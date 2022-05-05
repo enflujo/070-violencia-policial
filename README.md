@@ -6,80 +6,98 @@
 ![Licencia](https://img.shields.io/github/license/enflujo/070-violencia-policial?label=Licencia&logo=open-source-initiative&logoColor=white)
 
 <p align="center">
-  <strong>TimeMap is a tool for exploration, monitoring and classification of incidents in time and space.<br>See a <a href="https://ilovaisk.forensic-architecture.org">live instance here</a>.</strong><br>
+  <strong>TimeMap es una herramienta para explorar, monitorear y clasificar eventos en el tiempo y el espacio.<br>Aquí <a href="https://cerosetenta.uniandes.edu.co/represion-y-muerte-en-las-calles-de-colombia/">un ejemplo</a>.</strong><br>
 </p>
 
 ![](docs/example-timemap.png)
 
-[![Build status](https://travis-ci.com/forensic-architecture/timemap.svg?branch=develop)](https://travis-ci.com/forensic-architecture/timemap)
+## Información general
 
-## Overview
+TimeMap es una aplicación de frontend que permite explorar eventos en el tiempo y en el espacio. Esta versión se basa en un software *open source* desarrollado por [Forensic Architecture](https://github.com/forensic-architecture/timemap) y usa [mapbox](https://www.mapbox.com/) como mapa base.
 
-TimeMap is a standalone frontend application that allows to explore and monitor events in time and space. TimeMap uses OpenStreetMap satellite imagery as a backdrop by default, but can also be configured to use [mapbox](https://www.mapbox.com/). It uses Leaflet and d3 to visually map information.
+Para el desarrollo backend de este mapa se recomienda utilizar [Datasheet Server](https://github.com/enflujo/datasheet-server), otra aplicación también desarrollada por [Forensic Architecture](https://github.com/forensic-architecture/datasheet-server), que hace posible organizar y modificar los datos que alimentan el mapa, usando una hoja de cálculo de Google como una tabla dinámica. El backend y el frontend, actualmente, se alojan en distintos servidores.
 
-The recommended way to run a backend for timemap is using [datasheet-server](https://github.com/forensic-architecture/datasheet-server). This allows you to work with a spreadsheet or Google Sheet as a dynamic database for for timemap.
+TimeMap permite:
 
-TimeMap has the following high-level features capabilites:
+- Visualizar eventos en un mapa.
+- Visualizar y filtrar estos eventos en el tiempo, por medio de una línea de tiempo.
+- Organizar y visualizar los eventos por categoría.
+- Mostrar información, imágenes y videos asociados a cada evento.
 
-- Visualize incidents of particular events on a map.
-- Visualize and filter these incidents over time, on an adjustable timeline that allows to zoom in and out.
-- Visualize types of incidents by tag and by category, which can be displayed using different styles.
+Este es un ejemplo del uso de TimeMap, resultado de una investigación realizada por [Cerosetenta](https://cerosetenta.uniandes.edu.co/?category_name=0) sobre la violencia policial en las movilizaciones sociales de 2021 en Colombia: [Cartografía de la violencia policial](https://cerosetenta.uniandes.edu.co/represion-y-muerte-en-las-calles-de-colombia/).
 
-A fully-functioning live version can be found as a result of the Forensic Architecture investigation of the [Battle of Ilovaisk](https://ilovaisk.forensic-architecture.org).
+## Usar este repositorio
 
-## Get up and running
+Forensic Architecture tiene un [tutorial completo](https://forensic-architecture.org/investigation/timemap-for-cartographic-platforms) sobre el uso y las posibilidades de la versión original de este repositorio. Algunas cosas varían en este proyecto particular, parcialmente modificado por EnFlujo.
 
-These easiest way to get up and running with timemap and datasheet-server is to
-[follow the tutorial here](https://forensic-architecture.org/investigation/timemap-for-cartographic-platforms).
+### Instrucciones
 
-### Instructions
+Para usar este repositorio por primera vez de forma local:
 
-1. Pull this repository.
-
-```shell
-git clone https://github.com/forensic-architecture/timemap
-```
-
-2. Install dependencies via yarn (recommended, it's just faster) or npm.
+1. Clonar el repositorio
 
 ```shell
-yarn          # npm install
+git clone https://github.com/enflujo/timemap.git
 ```
 
-3. Run it via yarn.
+2. En la carpeta del repositorio instalar las dependencias utilizando yarn. 
+
+(Para esto Node y Yarn deben estar instalados en el computador. Puede usar nvm para instalar distintas versiones de Node localmente y luego usar `npm install --global yarn` para instalar Yarn de forma global. 
 
 ```shell
-yarn dev      # npm run dev
+yarn
 ```
 
-To run with a file that is not 'config.js' in the root directory, set the `CONFIG` environment variable:
+3. Correr el servidor de desarrollo, al cual se podrá acceder en http://localhost:8080
 
+```shell
+yarn dev
 ```
-CONFIG="myotherconfig.js" yarn dev
+
+Aclaración importante: TimeMap puede correrse sin datos pero no mostrará eventos. Para que muestre información en el mapa y en la línea de tiempo es necesario que reciba datos, en este caso de [Datasheet Server](https://github.com/enflujo/datasheet-server).
+
+#### Correr el proyecto sin datasheet-server
+
+Técnicamente, TimeMap es agnóstico al backend, sin embargo requiere una serie de endpoints que provean datos para visualizar. Los datos se esperan en formato JSON. Algunos de los elementos de los datos son obligatorios y su formato tiene, a su vez, campos obligatorios. Otros endpoints adicionales son opcionales y, si están habilitados, simplemente agregarán otras funciones.
+
+La combinación de todos los tipos de datos, en el contexto de TimeMap, es llamado el `dominio` de la aplicación.
+
+## Publicar el mapa
+
+Antes de subir el mapa al servidor es necesario preparar la aplicación con
+
+```shell
+yarn build
 ```
 
-IMPORTANT: Although the application will run _just like that_, in order for TimeMap to be able to display interesting information, you'll have to make sure to have the capacity to serve data, as well as adjusting some configuration parameters. See next section.
+Esto creará en la raíz del proyecto una carpeta 'build' que contendrá una carpeta 'js' y otros archivos, entre ellos el index.html y el index.css.
 
-#### Running without datasheet-server
+Para publicar el mapa por primera vez debe subirse la carpeta 'build' al servidor que va a alojar la aplicación. Si el mapa muestra imágenes o videos, estos también deben subirse al servidor creando una carpeta 'imgs' y una 'videos'.
 
-Technically, timemap is backend agnostic, but it requires a series of endpoints to provide data for it to visualize. The data is expected in JSON format. Some data elements are required and their format has some required fields. Other additional endpoints are optional, and if enabled, they simply add features to your taste.
+## Actualizar el mapa
 
-The combination of all these data types is called the `domain` of the application in the context of TimeMap.
+Para actualizar el mapa manualmente después de haber hecho cambios en el frontend es necesario borrar los archivos de la carpeta local 'build' (exceptuando las imágenes y los videos) y correr localmente el comando:
 
-## Contribute
+```shell
+yarn build
+```
 
-### [Code of Conduct](CODE_OF_CONDUCT.md)
+Luego, reemplazar los archivos subidos al servidor por los nuevos archivos generados por el *build*.
 
-Please read before contributing. We endeavour to cultivate a community around timemap and other OSS at Forensic Architecture that is inclusive and respectful. Please join us in this!
+Para mostrar nuevas imágenes o videos solo hay que agregarlos a las respectivas carpetas en el servidor. No es necesario hacer el build si lo único que se quiere es mostrar estas nuevas imágenes o videos.
 
-### [Contributing Guide](CONTRIBUTING.md)
+También es posible actualizar el mapa automáticamente al hacer un push utilizando Github Actions.
 
-Learn more about our development process, i.e. how to propose bugfixes and improvements.
+## Contribuir
 
-## Community
+### [Código de Conducta (ENG)](CODE_OF_CONDUCT.md)
 
-If you have any questions or just want to chat, please join our team [fa_open_source](https://keybase.io/team/fa_open_source) on Keybase for community discussion. Keybase is a great platform for encrypted chat and file sharing that we use as a public forum.
+Queremos y trabajamos por una comunidad inclusiva y respetuosa alrededor de la programación creativa. Antes de contribuir al repositorio original por favor leer el código de conducta de Forensic Architecture.
 
-## [License](LICENSE.md)
+### [Guía de contribución al repositorio original (ENG)](CONTRIBUTING.md)
 
-timemap is distributed under the [DoNoHarm license](https://github.com/raisely/NoHarm).
+Guía sobre el proceso de desarrollo de Forensic Architecture.
+
+## [Licencia](LICENSE.md)
+
+TimeMap es distribuida bajo [licencia DoNoHarm](https://github.com/raisely/NoHarm).
