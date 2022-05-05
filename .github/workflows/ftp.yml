@@ -23,6 +23,7 @@ jobs:
         run: |
           touch .env
           echo MAPBOX_TOKEN=${{ secrets.MAPBOX_TOKEN }} >> .env
+          echo URL_API=${{ secrets.URL_API }} >> .env
           cat .env
 
       - name: 🔨 Hacer build
